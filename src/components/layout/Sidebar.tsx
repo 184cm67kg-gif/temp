@@ -199,23 +199,21 @@ export function Sidebar() {
                                                         </NavLink>
 
                                                         {/* Branches */}
-                                                        {(activeIssueId === issue.id || true) && (
-                                                            <div className="ml-4 space-y-0.5 border-l border-white/10 pl-2 my-1">
-                                                                {issue.branches.map(branch => (
-                                                                    <NavLink
-                                                                        key={branch.id}
-                                                                        to={`/branch/${branch.id}`}
-                                                                        className={({ isActive }) => cn(
-                                                                            "flex items-center gap-2 px-2 py-1 rounded-md text-xs transition-colors",
-                                                                            (isActive || activeBranchId === branch.id) ? "text-green-400 bg-green-500/10" : "text-gray-500 hover:text-gray-300 hover:bg-white/5"
-                                                                        )}
-                                                                    >
-                                                                        <CornerDownRight className="w-3 h-3 opacity-70" />
-                                                                        <span className="truncate">{branch.name}</span>
-                                                                    </NavLink>
-                                                                ))}
-                                                            </div>
-                                                        )}
+                                                        <div className="ml-4 space-y-0.5 border-l border-white/10 pl-2 my-1">
+                                                            {issue.branches.map(branch => (
+                                                                <NavLink
+                                                                    key={branch.id}
+                                                                    to={`/branch/${branch.id}`}
+                                                                    className={({ isActive }) => cn(
+                                                                        "flex items-center gap-2 px-2 py-1 rounded-md text-xs transition-colors",
+                                                                        (isActive || activeBranchId === branch.id) ? "text-green-400 bg-green-500/10" : "text-gray-500 hover:text-gray-300 hover:bg-white/5"
+                                                                    )}
+                                                                >
+                                                                    <CornerDownRight className="w-3 h-3 opacity-70" />
+                                                                    <span className="truncate">{branch.name}</span>
+                                                                </NavLink>
+                                                            ))}
+                                                        </div>
                                                     </div>
                                                 );
                                             })}

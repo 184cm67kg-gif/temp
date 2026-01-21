@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { createPortal } from 'react-dom';
-import { Send, MessageSquare, FileText, ChevronRight, Clock, Plus } from 'lucide-react';
+import { Send, MessageSquare, FileText, Clock, Plus } from 'lucide-react';
 import { useStore } from '../../store/scenarioStore';
 import { DecisionRecordModal } from '../pr/DecisionRecordModal';
-import type { DecisionRecord, Issue } from '../../types';
+import type { DecisionRecord } from '../../types';
 
 /**
  * RepositoryChatView - 레포지토리 레벨 채팅 화면
@@ -14,14 +14,6 @@ import type { DecisionRecord, Issue } from '../../types';
  * - 오른쪽: 이슈 목록 (클릭 시 이슈로 이동)
  * - Decision Record 아이콘 있으면 클릭 시 팝업
  */
-
-interface RepoChat {
-    id: string;
-    userId: string;
-    userName: string;
-    message: string;
-    timestamp: string;
-}
 
 export function RepositoryChatView() {
     const { repoId } = useParams();

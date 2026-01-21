@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import type { ComponentType, SVGProps } from 'react';
 import ChatMessage from './ChatMessage';
 import {
     X,
@@ -33,7 +34,7 @@ interface ChatThreadProps {
 const commitTypes: Array<{
     type: CommitType;
     label: string;
-    icon: any;
+    icon: ComponentType<SVGProps<SVGSVGElement>>;
     color: string;
     description: string;
 }> = [
@@ -119,7 +120,7 @@ export default function ChatThread({ chats, onSendMessage, onReact, allowCommitT
 
     // 중첩 답글(nested replies)을 부모 메시지 버블 내부에 렌더링합니다.
     // replies는 ChatMessage 컴포넌트 내에서 직접 렌더링되므로 재귀 호출이 필요하지 않습니다.
-    const renderThread = (chat: ChatNode, _depth = 0) => {
+    const renderThread = (chat: ChatNode) => {
         // replies를 ChatMessage에 전달할 수 있는 형태로 변환
         const formattedReplies = chat.replies.map(reply => ({
             id: reply.id,

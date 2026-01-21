@@ -63,7 +63,7 @@ export const BRANCH_TODAY: Branch = {
         },
         {
             id: "c3",
-            type: "ACTION",
+            type: "TODO",
             authorId: "u3", // Lee Frontend
             message: "프론트 캐시 로직 최종 점검",
             timestamp: new Date(Date.now() - 1000 * 60 * 15).toISOString(),

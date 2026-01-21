@@ -1,12 +1,10 @@
-import { MOCK_USERS, MOCK_ISSUES, MOCK_TEAM, MOCK_REPO, CURRENT_USER_ID, BRANCH_TODAY, BRANCH_TOMORROW } from '../data/mockData';
-import type { User, Issue, Branch, Commit, PullRequest, DecisionRecord, Notification, Review } from '../types';
+import { MOCK_USERS, MOCK_ISSUES, MOCK_TEAM, MOCK_REPO, CURRENT_USER_ID } from '../data/mockData';
+import type { Issue, Branch, Commit, PullRequest, DecisionRecord } from '../types';
 
 // Mock database state to persist data during session
-let dbIssues = [...MOCK_ISSUES];
-let dbPullRequests: PullRequest[] = [];
-let dbDecisionRecords: DecisionRecord[] = [];
-let dbNotifications: Notification[] = [];
-let dbRepoChats: any[] = [];
+const dbIssues: Issue[] = [...MOCK_ISSUES];
+const dbPullRequests: PullRequest[] = [];
+const dbDecisionRecords: DecisionRecord[] = [];
 
 /**
  * Mock API Client
@@ -19,19 +17,19 @@ export const apiClient = {
             setTimeout(() => {
                 // Routing logic based on URL
                 if (url === '/api/auth/me') {
-                    resolve(MOCK_USERS.find(u => u.id === CURRENT_USER_ID) as any);
+                    resolve(MOCK_USERS.find(u => u.id === CURRENT_USER_ID) as T);
                 }
                 else if (url === '/api/issues') {
-                    resolve(dbIssues as any);
+                    resolve(dbIssues as T);
                 }
                 else if (url.startsWith('/api/pull-requests')) {
-                    resolve(dbPullRequests as any);
+                    resolve(dbPullRequests as T);
                 }
                 else if (url === '/api/team') {
-                    resolve(MOCK_TEAM as any);
+                    resolve(MOCK_TEAM as T);
                 }
                 else if (url === '/api/repo') {
-                    resolve(MOCK_REPO as any);
+                    resolve(MOCK_REPO as T);
                 }
                 // Add unlimited mock handlers as needed
                 else {
@@ -41,24 +39,31 @@ export const apiClient = {
         });
     },
 
-    post: async <T>(url: string, data: any): Promise<T> => {
+    post: async <T>(url: string, data: unknown): Promise<T> => {
         console.log(`[POST] ${url}`, data);
         return new Promise((resolve) => {
             setTimeout(() => {
                 if (url === '/api/issues') {
-                    dbIssues.push(data);
+                    dbIssues.push(data as Issue);
+                    resolve(data as T);
+                    return;
                 } else if (url === '/api/pull-requests') {
-                    dbPullRequests.push(data);
+                    dbPullRequests.push(data as PullRequest);
+                    resolve(data as T);
+                    return;
                 } else if (url === '/api/branches') {
                     // Find issue and add branch? 
                     // This is tricky because branches are nested in issues in the current type def
                     // We might need to find the issue and update it
-                    if (data.issueId) {
-                        const issue = dbIssues.find(i => i.id === data.issueId);
+                    const branchPayload = data as Branch & { issueId?: string };
+                    if (branchPayload.issueId) {
+                        const issue = dbIssues.find(i => i.id === branchPayload.issueId);
                         if (issue) {
-                            issue.branches.push(data);
+                            issue.branches.push(branchPayload);
                         }
                     }
+                    resolve(data as T);
+                    return;
                 } else if (url.includes('/commits')) {
                     // /api/branches/${branchId}/commits
                     // Extract branchId from URL
@@ -70,11 +75,13 @@ export const apiClient = {
                         for (const issue of dbIssues) {
                             const branch = issue.branches.find(b => b.id === branchId);
                             if (branch) {
-                                branch.commits.push(data);
+                                branch.commits.push(data as Commit);
                                 break;
                             }
                         }
                     }
+                    resolve(data as T);
+                    return;
                 } else if (url.includes('/merge')) {
                     // Handle PR Merge logic inside the mock DB
                     const match = url.match(/\/api\/pull-requests\/(.+)\/merge/);
@@ -105,12 +112,13 @@ export const apiClient = {
                             // ... This is getting complex for a "Cleanup".
                             // I will accept the data and return a mock DecisionRecord.
 
+                            const safeData = data && typeof data === 'object' && !Array.isArray(data) ? data : {};
                             const newRecord = {
-                                id: `dr-${Date.now()}`,
-                                ...data,
+                                id: crypto.randomUUID?.() ?? String(Date.now()),
+                                ...safeData,
                                 createdAt: new Date().toISOString()
-                            };
-                            dbDecisionRecords.push(newRecord);
+                            } satisfies Partial<DecisionRecord>;
+                            dbDecisionRecords.push(newRecord as DecisionRecord);
 
                             // Update Issue Status to CLOSED
                             const pr = dbPullRequests[prIndex];
@@ -129,7 +137,7 @@ export const apiClient = {
         });
     },
 
-    put: async <T>(url: string, data: any): Promise<T> => {
+    put: async <T>(url: string, data: unknown): Promise<T> => {
         console.log(`[PUT] ${url}`, data);
         return new Promise((resolve) => {
             setTimeout(() => {
@@ -139,7 +147,8 @@ export const apiClient = {
                         const issueId = match[1];
                         const issue = dbIssues.find(i => i.id === issueId);
                         if (issue) {
-                            issue.status = data.status;
+                            const statusPayload = data as { status: Issue['status'] };
+                            issue.status = statusPayload.status;
                             resolve(issue as T);
                             return;
                         }

@@ -1,7 +1,6 @@
-import React from 'react';
 import { Outlet } from 'react-router-dom';
 import { Sidebar } from './Sidebar';
-import { Bell, Search, UserCircle } from 'lucide-react';
+import { Bell, Search } from 'lucide-react';
 import { useStore } from '../../store/scenarioStore';
 
 export function MainLayout() {

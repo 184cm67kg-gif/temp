@@ -5,7 +5,7 @@ import { useStore } from '../../store/scenarioStore';
 import { Send, Plus, X, CornerDownRight, ChevronLeft, GitPullRequest } from 'lucide-react';
 import { PRCreateModal } from '../pr/PRCreateModal';
 import { PRDetailModal } from '../pr/PRDetailModal';
-import type { PullRequest } from '../../types';
+import type { PullRequest, Branch, Issue } from '../../types';
 
 type MessageType = 'NONE' | 'INFO' | 'OPINION' | 'QUESTION' | 'TODO';
 
@@ -56,8 +56,8 @@ export function BranchDiscussionView() {
     };
 
     // Find branch context
-    let branch: any = null;
-    let issue: any = null;
+    let branch: Branch | null = null;
+    let issue: Issue | null = null;
 
     for (const i of issues) {
         const b = i.branches.find(b => b.id === branchId);
@@ -436,7 +436,13 @@ export function BranchDiscussionView() {
                         branchId={branch.id}
                         branchName={branch.name}
                         issueId={issue.id}
-                        commits={commits}
+                        commits={commits.map(commit => ({
+                            id: String(commit.id),
+                            type: commit.type,
+                            authorId: currentUser?.id || 'user',
+                            message: commit.content,
+                            timestamp: new Date().toISOString()
+                        }))}
                         onClose={() => setShowPRModal(false)}
                     />,
                     document.body
